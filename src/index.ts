@@ -1,19 +1,22 @@
-import express, { Application, Request, Response } from 'express';
-import asyncInOut from './asyncInputOutput';
-import myfunc from './asyncAwait';
-const app: Application = express();
+import { server } from "./server";
+import cluster from 'node:cluster';
+import os from 'node:os';
+const Server = new server().app;
+const PORT = 4001;
 
+if (cluster.isMaster) {
+    let noOfCpus = os.cpus().length;
+    console.log(`muster process is running at ${process.pid}`);
+    for (let i = 0; i < noOfCpus; i++) {
+        cluster.fork();
+    }
+    cluster.on('exit', () => {
+        console.log("One worker Destroyed");
 
-// app.get('/', function (req: Request, res: Response) {
-
-// })
-
-asyncInOut();
-
-myfunc();
-
-// const PORT = 4001;
-// app.listen(PORT, function () {
-//     console.log(`App is runnig at port ${PORT}...`);
-
-// })
+        cluster.fork();
+    })
+} else {
+    Server.listen(PORT, function () {
+        console.log(`App is runnig at port ${PORT}...`);
+    })
+}
