@@ -4,7 +4,7 @@ import os from 'node:os';
 const Server = new server().app;
 const PORT = 4001;
 
-if (cluster.isMaster) {
+if (cluster.isPrimary) {
     let noOfCpus = os.cpus().length;
     console.log(`muster process is running at ${process.pid}`);
     for (let i = 0; i < noOfCpus; i++) {
